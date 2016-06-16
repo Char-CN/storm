@@ -7,6 +7,8 @@ import java.util.Properties;
 
 import org.blazer.common.conf.Conf;
 import org.blazer.common.conf.ConfUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import backtype.storm.spout.SpoutOutputCollector;
 import backtype.storm.task.TopologyContext;
@@ -25,8 +27,24 @@ import kafka.utils.VerifiableProperties;
 public class KafkaSpout extends BaseRichSpout {
 
 	private static final long serialVersionUID = 8284318790249361525L;
-	ConsumerIterator<String, String> it;
-	SpoutOutputCollector collector;
+	private Logger logger = LoggerFactory.getLogger(KafkaSpout.class);
+	private ConsumerIterator<String, String> ci;
+	private SpoutOutputCollector collector;
+
+	@Override
+	public void nextTuple() {
+		if (ci.hasNext()) {
+			String msg = ci.next().message();
+			this.collector.emit(new Values(msg));
+		}
+		Utils.sleep(10);
+	}
+
+	@Override
+	public void fail(Object msgId) {
+		logger.info("fail:" + msgId.toString());
+		super.fail(msgId);
+	}
 
 	@Override
 	@SuppressWarnings("rawtypes")
@@ -49,23 +67,15 @@ public class KafkaSpout extends BaseRichSpout {
 		StringDecoder value = new StringDecoder(new VerifiableProperties());
 		Map<String, List<KafkaStream<String, String>>> consumerMap = consumer.createMessageStreams(topicCountMap, key, value);
 		KafkaStream<String, String> stream = consumerMap.get(myconf.get("topic")).get(0);
-		ConsumerIterator<String, String> it = stream.iterator();
-		this.it = it;
+
+		ConsumerIterator<String, String> ci = stream.iterator();
+		this.ci = ci;
 		this.collector = collector;
 	}
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 		declarer.declare(new Fields("kafka_message"));
-	}
-
-	@Override
-	public void nextTuple() {
-		if (it.hasNext()) {
-			String msg = it.next().message();
-			this.collector.emit(new Values(msg));
-		}
-		Utils.sleep(10);
 	}
 
 }

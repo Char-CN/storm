@@ -24,6 +24,7 @@ public class SplitWordBlot extends BaseBasicBolt {
 				collector.emit(new Values(word));
 			}
 		}
+		Integer.parseInt("asd");
 	}
 
 	@Override
