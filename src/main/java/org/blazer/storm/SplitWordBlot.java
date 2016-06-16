@@ -9,7 +9,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
-public class MySplitWordBlot extends BaseBasicBolt {
+public class SplitWordBlot extends BaseBasicBolt {
 
 	private static final long serialVersionUID = -2283010744344645087L;
 
