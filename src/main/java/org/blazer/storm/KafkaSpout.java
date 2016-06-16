@@ -33,11 +33,19 @@ public class KafkaSpout extends BaseRichSpout {
 
 	@Override
 	public void nextTuple() {
-		if (ci.hasNext()) {
+		// if (ci.hasNext()) {
+		// String msg = ci.next().message();
+		// this.collector.emit(new Values(msg));
+		// }
+		int i = 0;
+		int max = 100;
+		Object[] objs = new Object[max];
+		for (i = 0; i < 100 && ci.hasNext(); i++) {
 			String msg = ci.next().message();
-			this.collector.emit(new Values(msg));
+			objs[i] = msg;
 		}
-		Utils.sleep(10);
+		this.collector.emit(new Values(objs));
+		Utils.sleep(1);
 	}
 
 	@Override
