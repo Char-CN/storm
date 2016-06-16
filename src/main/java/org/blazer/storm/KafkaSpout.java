@@ -1,5 +1,6 @@
 package org.blazer.storm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,6 @@ import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.OutputFieldsDeclarer;
 import backtype.storm.topology.base.BaseRichSpout;
 import backtype.storm.tuple.Fields;
-import backtype.storm.tuple.Values;
 import backtype.storm.utils.Utils;
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
@@ -37,14 +37,13 @@ public class KafkaSpout extends BaseRichSpout {
 		// String msg = ci.next().message();
 		// this.collector.emit(new Values(msg));
 		// }
-		int i = 0;
 		int max = 100;
-		Object[] objs = new Object[max];
-		for (i = 0; i < 100 && ci.hasNext(); i++) {
+		ArrayList<Object> arr = new ArrayList<Object>();
+		for (int i = 0; i < max && ci.hasNext(); i++) {
 			String msg = ci.next().message();
-			objs[i] = msg;
+			arr.add(msg);
 		}
-		this.collector.emit(new Values(objs));
+		this.collector.emit(arr);
 		Utils.sleep(1);
 	}
 
